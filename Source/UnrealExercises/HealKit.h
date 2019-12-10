@@ -21,7 +21,7 @@ public:
 		float Heal = 0.01;
 
 	UPROPERTY(EditAnywhere)
-		float Time = 0.1;
+		float Time = 0.5;
 
 	UPROPERTY(VisibleAnywhere)
 		FRotator Rotation;

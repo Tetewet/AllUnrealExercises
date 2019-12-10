@@ -33,6 +33,8 @@ public:
 
 	UPROPERTY(EditAnywhere)
 		UMaterialInstanceDynamic* CubemonMaterial;
+	UPROPERTY(EditAnywhere)
+		UMaterialInstanceDynamic* CubemonHeadMaterial;
 
 protected:
 	// Called when the game starts or when spawned

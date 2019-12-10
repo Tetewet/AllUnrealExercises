@@ -134,6 +134,12 @@ void AUnrealExercisesCharacter::SetupPlayerInputComponent(class UInputComponent*
 	// set up gameplay key bindings
 	check(PlayerInputComponent);
 
+	// Bind skill FireLaser event
+	PlayerInputComponent->BindAction("FireLaser", IE_Pressed, this, &AUnrealExercisesCharacter::FireLaser);
+
+	// Bind skill E event
+	PlayerInputComponent->BindAction("SortEnnemies", IE_Pressed, this, &AUnrealExercisesCharacter::SortEnnemies);
+
 	// Bind skill Q event
 	PlayerInputComponent->BindAction("FarSkill", IE_Released, this, &AUnrealExercisesCharacter::FarSkill);
 
@@ -160,6 +166,73 @@ void AUnrealExercisesCharacter::SetupPlayerInputComponent(class UInputComponent*
 	PlayerInputComponent->BindAxis("TurnRate", this, &AUnrealExercisesCharacter::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &AUnrealExercisesCharacter::LookUpAtRate);
+}
+
+void AUnrealExercisesCharacter::FireLaser()
+{
+	//ACubemon* Actor;
+	TArray<TEnumAsByte<EObjectTypeQuery>> Query;
+	TArray<AActor*> Ignore;
+	TArray<FHitResult> HitArray;
+	FVector ForwardVector = FirstPersonCameraComponent->GetForwardVector();
+	FVector Start = FP_Gun->GetComponentLocation();
+	FVector End = Start + (ForwardVector * DistanceLaserFire);
+	FCollisionQueryParams CollisionParams;
+	DrawDebugLine(GetWorld(), Start, End, FColor::Green, true);
+	UKismetSystemLibrary::LineTraceMulti(this, Start, End, ETraceTypeQuery::TraceTypeQuery4, true, Ignore, EDrawDebugTrace::ForDuration, HitArray, true);
+
+	for (auto ActorHit : HitArray)
+	{
+		ACubemon* CubemonHit = Cast<ACubemon>(ActorHit.Actor);
+		if (CubemonHit != nullptr)
+		{
+			FString result = FString::Printf(TEXT("Hit %d actors."), HitArray.Num());
+			GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Orange, result);
+			float Damage = 0.8 / pow(2, ActorHit.FaceIndex);
+			CubemonHit->Hp -= Damage;
+			FString resultt = FString::Printf(TEXT("Hit for %d damage."), Damage);
+			GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Orange, resultt);
+		}
+	}
+}
+
+void AUnrealExercisesCharacter::SortEnnemies()
+{
+	TArray<TEnumAsByte<EObjectTypeQuery>> query;
+	TArray<AActor*> ignore;
+	TArray<AActor*> EnnemySortArray;
+	FVector MyLocation = this->GetActorLocation();
+	UKismetSystemLibrary::SphereOverlapActors(this, MyLocation, 10000, query, ACubemon::StaticClass(), ignore, EnnemySortArray);
+
+	FString result = FString::Printf(TEXT("Hit %d actors."), EnnemySortArray.Num());
+	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Orange, result);
+
+	float LowerHp = 1;
+	float ActorHp = 0;
+	//if (EnnemySortArray.Last() != nullptr)
+	for (int i = 0; i <= EnnemySortArray.Num(); i++)
+	{
+		ACubemon* LowestHp = Cast<ACubemon>(EnnemySortArray[0]);
+		for (auto Cubemon : EnnemySortArray)
+		{
+			auto actor = Cast<ACubemon>(Cubemon);
+			if (actor != nullptr)
+			{
+				ActorHp = actor->Hp;
+				if (ActorHp < LowerHp)
+				{
+					LowerHp = ActorHp;
+					LowestHp = Cast<ACubemon>(actor);
+				}
+			}
+		}
+		if (LowestHp != nullptr)
+		{
+			//FString result = FString::Printf(TEXT("this is %d actor."), LowestHp->GetName());
+			GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Orange, LowestHp->GetName());
+			EnnemySortArray.Remove(LowestHp);
+		}
+	}
 }
 
 void AUnrealExercisesCharacter::FarSkill()

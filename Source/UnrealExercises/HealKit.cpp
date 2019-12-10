@@ -16,6 +16,7 @@ AHealKit::AHealKit()
 
 	BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("Box"));
+	CollisionBox->AttachTo(BaseMesh);
 	RootComponent = BaseMesh;
 }
 
@@ -33,8 +34,8 @@ void AHealKit::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	if (IsHealing)
 	{
-		HealOvertime();
-		GEngine->AddOnScreenDebugMessage(1, 5, FColor::Emerald, TEXT("okOKOKOKOKOK"));
+		//HealOvertime();
+		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Emerald, TEXT("okOKOKOKOKOK"));
 	}
 	
 	if (MaxAmountHealed <= 0)
@@ -49,6 +50,7 @@ void AHealKit::HealOvertime()
 	auto player = Cast<AUnrealExercisesCharacter>(Player);
 	player->Hp += Heal;
 	MaxAmountHealed -= Heal;
+	//HKHeal = (1.0 - player->Hp) * Time / tduree;
 }
 
 void AHealKit::NotifyActorBeginOverlap(AActor* OtherActor)
@@ -65,8 +67,9 @@ void AHealKit::NotifyActorBeginOverlap(AActor* OtherActor)
 			{
 				IsHealing = false;
 				GetWorld()->GetTimerManager().PauseTimer(TimerHandle);
+				Destroy();
 			}
-			if (HealSound != nullptr && IsHealing == true)
+			if (HealSound != nullptr)
 			{
 				UGameplayStatics::PlaySoundAtLocation(this, HealSound, GetActorLocation());
 			}

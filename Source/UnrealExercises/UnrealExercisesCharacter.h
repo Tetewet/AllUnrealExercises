@@ -63,6 +63,9 @@ public:
 		float SphereRadius = 500;
 
 	UPROPERTY(EditAnywhere)
+		float DistanceLaserFire = 1000;
+
+	UPROPERTY(EditAnywhere)
 		float Damage = 0.1;
 
 	UPROPERTY(EditAnywhere)
@@ -101,6 +104,12 @@ protected:
 	/** Get the furthest Cubemon Ennemy and inflicts damage*/
 	void FarSkill();
 
+	/** Get all Cubemons to sort them out*/
+	void SortEnnemies();
+
+	/** Fire a super laser that inflicts 80% damage and half to ennemies behind our target (in a line)*/
+	void FireLaser();
+	
 	/** Fires a projectile. */
 	void OnFire();
 
